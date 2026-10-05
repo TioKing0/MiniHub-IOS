@@ -1,0 +1,24 @@
+workflows:
+  minihub-ios9-unsigned:
+    name: MiniHub iOS 9 ARMv7 (Unsigned)
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    environment:
+      vars:
+        XCODE_PROJECT: "MiniHubIOS.xcodeproj"
+        XCODE_SCHEME: "MiniHubIOS"
+    scripts:
+      - name: Toolchain info
+        script: |
+          set -e
+          xcodebuild -version
+          xcodebuild -showsdks
+      - name: Build MiniHub
+        script: |
+          set -e
+          chmod +x scripts/build-ipa.sh
+          ./scripts/build-ipa.sh
+    artifacts:
+      - build/MiniHub.ipa
+      - build/MiniHub.app/**
+      - /tmp/xcodebuild_logs/*.log
