@@ -14,20 +14,21 @@ if [ ! -d "MiniHubIOS.xcodeproj" ]; then
     exit 66
   fi
   echo "Extracting $PACKAGE..."
-  rm -rf .codemagic-source
-  mkdir .codemagic-source
-  /usr/bin/unzip -q "$PACKAGE" -d .codemagic-source
+  EXTRACT_DIR="/tmp/minihub-codemagic-source"
+  rm -rf "$EXTRACT_DIR"
+  mkdir -p "$EXTRACT_DIR"
+  /usr/bin/unzip -q "$PACKAGE" -d "$EXTRACT_DIR"
 
-  PROJECT_PATH="$(find .codemagic-source -type d -name 'MiniHubIOS.xcodeproj' -print -quit)"
+  PROJECT_PATH="$(find "$EXTRACT_DIR" -type d -name 'MiniHubIOS.xcodeproj' -print -quit)"
   if [ -z "$PROJECT_PATH" ]; then
     echo "ERROR: MiniHubIOS.xcodeproj was not found inside $PACKAGE." >&2
-    find .codemagic-source -maxdepth 3 -print
+    find "$EXTRACT_DIR" -maxdepth 3 -print
     exit 66
   fi
 
   SOURCE_ROOT="$(dirname "$PROJECT_PATH")"
   echo "Using extracted project at: $SOURCE_ROOT"
-  cp -R "$SOURCE_ROOT"/. .
+  cp -R "$SOURCE_ROOT"/. "$ROOT"/
 fi
 
 if [ ! -f "MiniHubIOS.xcodeproj/project.pbxproj" ]; then
