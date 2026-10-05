@@ -65,4 +65,11 @@ mkdir -p build/Payload
 cp -R "$APP" build/Payload/MiniHub.app
 (cd build && /usr/bin/zip -qry MiniHub.ipa Payload)
 
-echo "Generated: $(pwd)/build/MiniHub.ipa"
+if [ "$(pwd)" != "$ROOT" ]; then
+  rm -rf "$ROOT/build"
+  mkdir -p "$ROOT/build"
+  cp -R build/MiniHub.app "$ROOT/build/MiniHub.app"
+  cp build/MiniHub.ipa "$ROOT/build/MiniHub.ipa"
+fi
+
+echo "Generated: $ROOT/build/MiniHub.ipa"
