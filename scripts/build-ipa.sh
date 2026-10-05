@@ -28,7 +28,7 @@ if [ ! -d "MiniHubIOS.xcodeproj" ]; then
 
   SOURCE_ROOT="$(dirname "$PROJECT_PATH")"
   echo "Using extracted project at: $SOURCE_ROOT"
-  cp -R "$SOURCE_ROOT"/. "$ROOT"/
+  cd "$SOURCE_ROOT"
 fi
 
 if [ ! -f "MiniHubIOS.xcodeproj/project.pbxproj" ]; then
@@ -65,4 +65,4 @@ mkdir -p build/Payload
 cp -R "$APP" build/Payload/MiniHub.app
 (cd build && /usr/bin/zip -qry MiniHub.ipa Payload)
 
-echo "Generated: $ROOT/build/MiniHub.ipa"
+echo "Generated: $(pwd)/build/MiniHub.ipa"
