@@ -1,14 +1,67 @@
 #!/bin/bash
 set -euo pipefail
+
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+
+# Codemagic clones the GitHub repository. During the transition the complete
+# Xcode project is stored in this ZIP, so unpack it when the .xcodeproj is not
+# already present at repository root.
+if [ ! -d "MiniHubIOS.xcodeproj" ]; then
+  PACKAGE="MiniHub-IOS-Codemagic.zip"
+  if [ ! -f "$PACKAGE" ]; then
+    echo "ERROR: MiniHubIOS.xcodeproj and $PACKAGE are both missing." >&2
+    exit 66
+  fi
+  echo "Extracting $PACKAGE..."
+  rm -rf .codemagic-source
+  mkdir .codemagic-source
+  /usr/bin/unzip -q "$PACKAGE" -d .codemagic-source
+
+  PROJECT_PATH="$(find .codemagic-source -type d -name 'MiniHubIOS.xcodeproj' -print -quit)"
+  if [ -z "$PROJECT_PATH" ]; then
+    echo "ERROR: MiniHubIOS.xcodeproj was not found inside $PACKAGE." >&2
+    find .codemagic-source -maxdepth 3 -print
+    exit 66
+  fi
+
+  SOURCE_ROOT="$(dirname "$PROJECT_PATH")"
+  echo "Using extracted project at: $SOURCE_ROOT"
+  cp -R "$SOURCE_ROOT"/. .
+fi
+
+if [ ! -f "MiniHubIOS.xcodeproj/project.pbxproj" ]; then
+  echo "ERROR: project.pbxproj is missing." >&2
+  exit 66
+fi
+
 rm -rf build
 mkdir -p build
-xcodebuild -project MiniHubIOS.xcodeproj -scheme MiniHubIOS -configuration Release -sdk iphoneos -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" ARCHS=armv7 ONLY_ACTIVE_ARCH=NO IPHONEOS_DEPLOYMENT_TARGET=9.0 build
+
+echo "Building MiniHub for iOS 9 / ARMv7..."
+xcodebuild \
+  -project MiniHubIOS.xcodeproj \
+  -scheme MiniHubIOS \
+  -configuration Release \
+  -sdk iphoneos \
+  -derivedDataPath build/DerivedData \
+  CODE_SIGNING_ALLOWED=NO \
+  CODE_SIGNING_REQUIRED=NO \
+  CODE_SIGN_IDENTITY="" \
+  ARCHS=armv7 \
+  ONLY_ACTIVE_ARCH=NO \
+  IPHONEOS_DEPLOYMENT_TARGET=9.0 \
+  build
+
 APP="$(find build/DerivedData/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
-if [ -z "$APP" ]; then echo "MiniHub.app não encontrado" >&2; exit 1; fi
+if [ -z "$APP" ]; then
+  echo "ERROR: MiniHub.app not found." >&2
+  exit 1
+fi
+
 cp -R "$APP" build/MiniHub.app
 mkdir -p build/Payload
 cp -R "$APP" build/Payload/MiniHub.app
 (cd build && /usr/bin/zip -qry MiniHub.ipa Payload)
-echo "Gerado: $ROOT/build/MiniHub.ipa"
+
+echo "Generated: $ROOT/build/MiniHub.ipa"
