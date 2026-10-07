@@ -6,7 +6,7 @@ include $(THEOS)/makefiles/common.mk
 
 APPLICATION_NAME = MiniHub
 MiniHub_FILES = main.m AppDelegate.m MiniHubViewController.m
-MiniHub_FRAMEWORKS = UIKit Foundation
+MiniHub_FRAMEWORKS = UIKit Foundation AVFoundation
 MiniHub_CFLAGS = -fobjc-arc
 MiniHub_RESOURCE_DIRS = Resources
 
