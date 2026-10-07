@@ -20,7 +20,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             bash curl git make perl unzip zip xz-utils \
-            file fakeroot dpkg libtinfo6 ca-certificates bzip2
+            file fakeroot dpkg libtinfo6 ca-certificates bzip2 imagemagick
 
       - name: Install Theos
         env:
@@ -46,6 +46,21 @@ jobs:
           test -d "$THEOS/sdks/iPhoneOS9.2.sdk"
           echo "SDK installed:"
           ls -la "$THEOS/sdks/iPhoneOS9.2.sdk" | head
+
+      - name: Prepare legacy iOS icons
+        run: |
+          set -euxo pipefail
+          SRC="MiniHubLegacy/Resources/Icon-76.png"
+          test -f "$SRC"
+
+          # iOS 9 is much happier with old-style opaque PNG icons.
+          convert "$SRC" -background white -alpha remove -alpha off -resize 57x57!  MiniHubLegacy/Resources/Icon.png
+          convert "$SRC" -background white -alpha remove -alpha off -resize 72x72!  MiniHubLegacy/Resources/Icon-72.png
+          convert "$SRC" -background white -alpha remove -alpha off -resize 76x76!  MiniHubLegacy/Resources/Icon-76.png
+          convert "$SRC" -background white -alpha remove -alpha off -resize 40x40!  MiniHubLegacy/Resources/Icon-40.png
+          convert "$SRC" -background white -alpha remove -alpha off -resize 29x29!  MiniHubLegacy/Resources/Icon-29.png
+
+          file MiniHubLegacy/Resources/Icon*.png
 
       - name: Build ARMv7 app
         env:
