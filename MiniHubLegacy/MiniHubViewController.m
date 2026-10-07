@@ -1,6 +1,6 @@
 #import "MiniHubViewController.h"
 
-static NSString * const MiniHubURL = @"http://webminihub.local";
+static NSString * const MiniHubURL = @"http://webminihub.local:8080";
 
 @interface MiniHubViewController ()
 @property (nonatomic, strong) UIWebView *webView;
