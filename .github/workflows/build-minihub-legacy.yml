@@ -1,0 +1,84 @@
+name: Build MiniHub Legacy ARMv7
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "MiniHubLegacy/**"
+      - ".github/workflows/build-minihub-legacy.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            bash curl git make perl unzip zip xz-utils \
+            file fakeroot dpkg libtinfo6 ca-certificates
+
+      - name: Install Theos
+        env:
+          CI: "1"
+          THEOS: ${{ github.workspace }}/theos
+        run: |
+          git clone --recursive https://github.com/theos/theos.git "$THEOS"
+          mkdir -p "$THEOS/toolchain"
+          curl -fL \
+            https://github.com/L1ghtmann/llvm-project/releases/latest/download/iOSToolchain-x86_64.tar.xz \
+            | tar -xJ -C "$THEOS/toolchain"
+
+      - name: Install iOS 9.3 SDK
+        env:
+          THEOS: ${{ github.workspace }}/theos
+        run: |
+          mkdir -p "$THEOS/sdks"
+          curl -fL \
+            https://github.com/theos/sdks/releases/latest/download/iPhoneOS9.3.sdk.tar.xz \
+            -o /tmp/iPhoneOS9.3.sdk.tar.xz
+          tar -xJf /tmp/iPhoneOS9.3.sdk.tar.xz -C "$THEOS/sdks"
+          test -d "$THEOS/sdks/iPhoneOS9.3.sdk"
+          echo "SDK installed:"
+          ls -la "$THEOS/sdks/iPhoneOS9.3.sdk" | head
+
+      - name: Build ARMv7 app
+        env:
+          THEOS: ${{ github.workspace }}/theos
+        run: |
+          set -euxo pipefail
+          cd MiniHubLegacy
+          make clean
+          make FINALPACKAGE=1
+          make stage FINALPACKAGE=1
+
+      - name: Verify ARMv7 binary
+        run: |
+          set -euxo pipefail
+          APP="$(find MiniHubLegacy/.theos/_ -type d -name 'MiniHub.app' -print -quit)"
+          test -n "$APP"
+          test -f "$APP/MiniHub"
+          echo "App: $APP"
+          file "$APP/MiniHub"
+          file "$APP/MiniHub" | grep -Ei 'arm|Mach-O'
+
+      - name: Create IPA
+        run: |
+          set -euxo pipefail
+          rm -rf dist
+          mkdir -p dist/Payload
+          APP="$(find MiniHubLegacy/.theos/_ -type d -name 'MiniHub.app' -print -quit)"
+          cp -a "$APP" dist/Payload/MiniHub.app
+          (cd dist && zip -qry MiniHub-Legacy-iOS9-ARMv7.ipa Payload)
+          ls -lh dist/MiniHub-Legacy-iOS9-ARMv7.ipa
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: MiniHub-Legacy-iOS9-ARMv7
+          path: dist/MiniHub-Legacy-iOS9-ARMv7.ipa
+          if-no-files-found: error
