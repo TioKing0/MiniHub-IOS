@@ -16,14 +16,14 @@ static NSString * const MiniHubURL = @"http://webminihub.local:8080";
     WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
     configuration.allowsInlineMediaPlayback = YES;
 
-    // This property exists on the iOS 9 SDK and is the legacy equivalent of
-    // mediaTypesRequiringUserActionForPlayback introduced later.
-    if ([configuration respondsToSelector:@selector(setMediaPlaybackRequiresUserAction:)]) {
-        configuration.mediaPlaybackRequiresUserAction = NO;
+    // iOS 9 names. Avoid the iOS 8 aliases because this build treats
+    // deprecation warnings as errors.
+    if ([configuration respondsToSelector:@selector(setRequiresUserActionForMediaPlayback:)]) {
+        configuration.requiresUserActionForMediaPlayback = NO;
     }
 
-    if ([configuration respondsToSelector:@selector(setMediaPlaybackAllowsAirPlay:)]) {
-        configuration.mediaPlaybackAllowsAirPlay = YES;
+    if ([configuration respondsToSelector:@selector(setAllowsAirPlayForMediaPlayback:)]) {
+        configuration.allowsAirPlayForMediaPlayback = YES;
     }
 
     self.webView = [[WKWebView alloc] initWithFrame:self.view.bounds configuration:configuration];
