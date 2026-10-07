@@ -47,20 +47,27 @@ jobs:
           echo "SDK installed:"
           ls -la "$THEOS/sdks/iPhoneOS9.2.sdk" | head
 
-      - name: Prepare legacy iOS icons
+      - name: Prepare Chrome-style legacy iPad icons
         run: |
           set -euxo pipefail
           SRC="MiniHubLegacy/Resources/Icon-76.png"
           test -f "$SRC"
 
-          # iOS 9 is much happier with old-style opaque PNG icons.
-          convert "$SRC" -background white -alpha remove -alpha off -resize 57x57!  MiniHubLegacy/Resources/Icon.png
-          convert "$SRC" -background white -alpha remove -alpha off -resize 72x72!  MiniHubLegacy/Resources/Icon-72.png
-          convert "$SRC" -background white -alpha remove -alpha off -resize 76x76!  MiniHubLegacy/Resources/Icon-76.png
-          convert "$SRC" -background white -alpha remove -alpha off -resize 40x40!  MiniHubLegacy/Resources/Icon-40.png
-          convert "$SRC" -background white -alpha remove -alpha off -resize 29x29!  MiniHubLegacy/Resources/Icon-29.png
+          # Same filename pattern used by Chrome 63 on iOS 9.
+          convert "$SRC" -background white -alpha remove -alpha off -resize 29x29!   MiniHubLegacy/Resources/AppIcon29x29~ipad.png
+          convert "$SRC" -background white -alpha remove -alpha off -resize 58x58!   MiniHubLegacy/Resources/AppIcon29x29@2x~ipad.png
+          convert "$SRC" -background white -alpha remove -alpha off -resize 40x40!   MiniHubLegacy/Resources/AppIcon40x40~ipad.png
+          convert "$SRC" -background white -alpha remove -alpha off -resize 80x80!   MiniHubLegacy/Resources/AppIcon40x40@2x~ipad.png
+          convert "$SRC" -background white -alpha remove -alpha off -resize 76x76!   MiniHubLegacy/Resources/AppIcon76x76~ipad.png
+          convert "$SRC" -background white -alpha remove -alpha off -resize 152x152! MiniHubLegacy/Resources/AppIcon76x76@2x~ipad.png
+          convert "$SRC" -background white -alpha remove -alpha off -resize 167x167! MiniHubLegacy/Resources/AppIcon83.5x83.5@2x~ipad.png
 
-          file MiniHubLegacy/Resources/Icon*.png
+          # Fallback names for older icon lookup paths.
+          cp MiniHubLegacy/Resources/AppIcon29x29~ipad.png MiniHubLegacy/Resources/AppIcon29x29.png
+          cp MiniHubLegacy/Resources/AppIcon40x40~ipad.png MiniHubLegacy/Resources/AppIcon40x40.png
+          cp MiniHubLegacy/Resources/AppIcon76x76~ipad.png MiniHubLegacy/Resources/AppIcon76x76.png
+
+          file MiniHubLegacy/Resources/AppIcon*.png
 
       - name: Build ARMv7 app
         env:
