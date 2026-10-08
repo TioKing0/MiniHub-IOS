@@ -22,3 +22,4 @@ workflows:
       - build/MiniHub.ipa
       - build/MiniHub.app/**
       - /tmp/xcodebuild_logs/*.log
+

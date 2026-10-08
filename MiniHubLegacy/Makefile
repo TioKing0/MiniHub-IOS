@@ -11,3 +11,4 @@ MiniHub_CFLAGS = -fobjc-arc
 MiniHub_RESOURCE_DIRS = Resources
 
 include $(THEOS_MAKE_PATH)/application.mk
+

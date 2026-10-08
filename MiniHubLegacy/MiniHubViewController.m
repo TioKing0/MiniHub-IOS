@@ -15,6 +15,7 @@ static NSString * const MiniHubURL = @"http://webminihub.local:8080";
 
     WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
     configuration.allowsInlineMediaPlayback = YES;
+    configuration.applicationNameForUserAgent = @"MiniHubLegacy/9.0.6";
 
     // iOS 9 names. Avoid the iOS 8 aliases because this build treats
     // deprecation warnings as errors.
@@ -91,3 +92,4 @@ didFailNavigation:(WKNavigation *)navigation
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations { return UIInterfaceOrientationMaskAll; }
 
 @end
+

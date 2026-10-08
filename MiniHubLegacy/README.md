@@ -18,3 +18,4 @@ No diretório do projeto:
 A instalação final pode ser feita via pacote Theos ou copiando o .app produzido para o dispositivo conforme o ambiente jailbreak usado.
 
 Este projeto não contém modo demo nem dados falsos.
+

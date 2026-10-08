@@ -73,3 +73,4 @@ if [ "$(pwd)" != "$ROOT" ]; then
 fi
 
 echo "Generated: $ROOT/build/MiniHub.ipa"
+
